@@ -123,6 +123,14 @@
   frame=single, rulecolor=\color{hoja!40}, breaklines=true, showstringspaces=false,
   literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1}
 
+
+% Etiqueta "En R": indica en qué parte del script está el resultado
+\newcommand{\enR}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=north east, fill=hoja, text=white, rounded corners=3pt, font=\scriptsize\bfseries,
+          inner sep=4pt] at ($(current page.north east)+(-0.5,-0.45)$) {\faCode\ #1};
+  \end{tikzpicture}}
+
 % Destacar cifras
 \newcommand{\cifra}[1]{{\color{tomate}\bfseries #1}}
 \newcommand{\sig}{\textcolor{hoja}{\faCheck}}
@@ -221,6 +229,7 @@
 \section{Datos y matrices}
 % =====================================================================
 \begin{frame}{Base analítica: una fila = un municipio}
+  \enR{Script 1}
   \begin{columns}[T]
     \column{0.52\textwidth}
     \textbf{\color{hoja}\faDatabase\ Fuentes}
@@ -249,15 +258,45 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Cómo está organizado el código}
+  \begin{columns}[T]
+    \column{0.42\textwidth}
+    \begin{block}{\faFileCode\ Script 1: base}\footnotesize
+      \begin{itemize}
+        \item Importar el CSV del SIPSA-P (UTF-8, \texttt{;}).
+        \item Precio numérico y fechas.
+        \item Mercado $\to$ municipio $\to$ código DIVIPOLA.
+        \item Polígonos MGN y paso a EPSG:9377.
+      \end{itemize}
+      \textbf{Guarda}: base limpia, mapa de 60 municipios, fondo de Colombia.
+    \end{block}
+    \column{0.58\textwidth}
+    \begin{block}{\faFileCode\ Script 2: análisis espacial}\footnotesize
+      \begin{tabular}{@{}l l@{}}
+        §2--3 & Cobertura de productos y variable $y$ \\
+        §4    & Mapas iniciales \\
+        §5    & Matrices W1, W2, W3 \\
+        §7    & Autocorrelación global de $y$ \\
+        §8    & LISA: Moran, Getis-Ord y Geary locales \\
+        §9    & Variables $X_1$, $X_2$ y global de $X_1$ \\
+        §10   & 16 modelos, diagnóstico, coeficientes, \\
+              & impactos y mapas de residuos \\
+      \end{tabular}
+    \end{block}
+  \end{columns}
+  {\scriptsize\color{gris}\faCode\ La etiqueta verde de cada diapositiva indica la sección del script que produce ese resultado.}
+\end{frame}
+
 \begin{frame}{Variables del modelo}
+  \enR{Script 2 · §3, §9, §10.1}
   \centering\small
   \begin{tabular}{>{\bfseries}l >{\raggedright\arraybackslash}p{5.6cm} l c}
     \toprule
     & Definición & Unidad & Esperado \\
     \midrule
     \color{tomate}$y$ & Mediana anual del precio mayorista del tomate de árbol & \$/kg & --- \\
-    \color{hoja}$X_1$ & $\log(1+\text{distancia al gran productor más cercano})$ & km & $+$ \\
-    \color{hoja}$X_2$ & $\log(1+\text{producción local de tomate de árbol})$ & t & $-$ \\
+    \color{hoja}$X_1$ & $\log(1+$ distancia al gran productor más cercano$)$ & km & $+$ \\
+    \color{hoja}$X_2$ & $\log(1+$ producción local de tomate de árbol$)$ & t & $-$ \\
     \bottomrule
   \end{tabular}
 
@@ -279,6 +318,7 @@
 \end{frame}
 
 \begin{frame}{Mapas iniciales: dos clasificaciones de $y$}
+  \enR{Script 2 · §4}
   \begin{columns}[c]
     \column{0.62\textwidth}
     \centering\figura{mapa_y_clasificaciones.png}{5.6cm}
@@ -294,6 +334,7 @@
 \end{frame}
 
 \begin{frame}{Tres matrices de vecindad}
+  \enR{Script 2 · §5}
   \begin{columns}[c]
     \column{0.55\textwidth}\small
     \textbf{Queen no sirve}: los 41 municipios están dispersos y quedarían sin vecinos.
@@ -321,6 +362,7 @@
 \section{Autocorrelación global}
 % =====================================================================
 \begin{frame}{Doce resultados globales}
+  \enR{Script 2 · §7 y §9.3}
   \framesubtitle{Prueba $z$ bajo aleatorización, dos colas, $\alpha=0{,}05$}
   \centering\scriptsize
   \begin{tabular}{l l l r r r r c}
@@ -347,6 +389,7 @@
 \end{frame}
 
 \begin{frame}{Lectura global: los vecinos se parecen}
+  \enR{Script 2 · §7.1}
   \begin{columns}[c]
     \column{0.5\textwidth}
     \centering\figura{dispersion_moran_W1.png}{5.4cm}
@@ -366,6 +409,7 @@
 \section{Patrones locales}
 % =====================================================================
 \begin{frame}{Moran local (W1): ¿dónde están los grupos?}
+  \enR{Script 2 · §8.1--8.2}
   \begin{columns}[c]
     \column{0.48\textwidth}
     \centering\figura{mapa_moran_local.png}{5.8cm}
@@ -385,6 +429,7 @@
 \end{frame}
 
 \begin{frame}{Getis-Ord y Geary locales}
+  \enR{Script 2 · §8.3--8.4}
   \begin{columns}[T]
     \column{0.5\textwidth}
     \centering\figura{mapa_getis_local.png}{3.5cm}\\[2pt]
@@ -404,6 +449,7 @@
 \section{Modelos y diagnóstico}
 % =====================================================================
 \begin{frame}{Seis especificaciones, 16 ajustes}
+  \enR{Script 2 · §10.2--10.3}
   \centering\small
   \begin{tabular}{>{\bfseries\color{hoja}}l l l}
     \toprule
@@ -427,6 +473,7 @@
 \end{frame}
 
 \begin{frame}{Diagnóstico: 18 filas modelo–matriz}
+  \enR{Script 2 · §10.4}
   \centering\scriptsize
   \begin{tabular}{l rrr rrr rrr}
     \toprule
@@ -456,6 +503,7 @@
 \section{Robustez}
 % =====================================================================
 \begin{frame}{Coeficientes de las dos $X$ centrales}
+  \enR{Script 2 · §10.5}
   \centering\scriptsize
   \begin{tabular}{l r r r r r r}
     \toprule
@@ -485,6 +533,7 @@
 \end{frame}
 
 \begin{frame}{Dos comparaciones de robustez}
+  \enR{Script 2 · §10.5}
   \begin{columns}[T]
     \column{0.5\textwidth}
     \begin{block}{\faSync\ Cambiar $W$, misma familia (SLM)}\small
@@ -507,6 +556,7 @@
 \end{frame}
 
 \begin{frame}{Residuos con los mismos cortes}
+  \enR{Script 2 · §10.7}
   \begin{columns}[c]
     \column{0.55\textwidth}
     \centering\figura{mapa_residuos.png}{6.1cm}
@@ -528,6 +578,7 @@
 \section{Interpretación y conclusión}
 % =====================================================================
 \begin{frame}{Modelo elegido: SLM con W1}
+  \enR{Script 2 · §10.6}
   \begin{columns}[T]
     \column{0.47\textwidth}
     \begin{block}{\faTrophy\ Por qué}\small
@@ -640,6 +691,7 @@
 \section*{Respaldo}
 
 \begin{frame}[fragile]{Respaldo: bloque de R que construye W2}
+  \enR{Script 2 · §5.4}
   \begin{columns}[T]
     \column{0.55\textwidth}
 \begin{lstlisting}
