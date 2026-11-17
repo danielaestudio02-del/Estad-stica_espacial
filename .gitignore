@@ -1,3 +1,10 @@
 .Rhistory
 .RData
 .Rproj.user/
+presentacion/*.aux
+presentacion/*.log
+presentacion/*.nav
+presentacion/*.out
+presentacion/*.snm
+presentacion/*.toc
+presentacion/*.vrb

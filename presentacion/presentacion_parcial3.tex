@@ -1,0 +1,692 @@
+% =====================================================================
+% Parcial 3 - Análisis Espacial
+% Distribución espacial del precio mayorista del tomate de árbol, 2024
+% Compilar con pdflatex (dos veces). Las figuras van en la carpeta figuras/
+% =====================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+
+% --- Idioma y codificación -------------------------------------------
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% --- Paquetes ----------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning, calc, shadows}
+\usepackage{fontawesome5}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{graphicx}
+
+% --- Paleta: tomate de árbol, campo y mercado --------------------------
+\definecolor{tomate}{HTML}{B5302A}      % rojo del tomate de árbol maduro
+\definecolor{naranja}{HTML}{E07B39}     % naranja de la pulpa
+\definecolor{hoja}{HTML}{3E7C3B}        % verde de la hoja
+\definecolor{hojaclara}{HTML}{8DB36B}   % verde claro
+\definecolor{tierra}{HTML}{6B4A2E}      % café de la tierra
+\definecolor{crema}{HTML}{FFF8EE}       % fondo cálido
+\definecolor{tinta}{HTML}{2E2A26}       % texto
+\definecolor{gris}{HTML}{8A817A}
+
+% --- Tema propio ------------------------------------------------------
+\setbeamercolor{background canvas}{bg=crema}
+\setbeamercolor{normal text}{fg=tinta}
+\setbeamercolor{frametitle}{fg=tomate}
+\setbeamercolor{structure}{fg=hoja}
+\setbeamercolor{alerted text}{fg=tomate}
+\setbeamercolor{block title}{bg=hoja, fg=white}
+\setbeamercolor{block body}{bg=hoja!8}
+\setbeamercolor{block title alerted}{bg=tomate, fg=white}
+\setbeamercolor{block body alerted}{bg=tomate!8}
+\setbeamercolor{block title example}{bg=naranja, fg=white}
+\setbeamercolor{block body example}{bg=naranja!10}
+\setbeamerfont{frametitle}{size=\Large, series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamertemplate{itemize item}{\color{tomate}\small\faCircle}
+\setbeamertemplate{itemize subitem}{\color{hoja}\scriptsize\faLeaf}
+\setbeamertemplate{enumerate item}{\color{tomate}\bfseries\insertenumlabel.}
+
+% Título de cada diapositiva con una franja verde-naranja debajo
+\makeatletter
+\setbeamertemplate{frametitle}{%
+  \vspace{0.35cm}%
+  \begin{beamercolorbox}[wd=\paperwidth, leftskip=0.6cm]{frametitle}%
+    \usebeamerfont{frametitle}\insertframetitle%
+    \ifx\insertframesubtitle\@empty\else\\[-1pt]{\normalsize\color{gris}\insertframesubtitle}\fi
+  \end{beamercolorbox}%
+  \vspace{-0.1cm}%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[hoja] ($(current page.north west)+(0.6,-1.38)$) rectangle ++(2.2,0.07);
+    \fill[naranja] ($(current page.north west)+(2.8,-1.38)$) rectangle ++(0.9,0.07);
+  \end{tikzpicture}%
+}
+\makeatother
+
+% Pie: sección a la izquierda, número a la derecha y barra de progreso
+\setbeamertemplate{footline}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[hoja!15] (current page.south west) rectangle ($(current page.south east)+(0,0.5)$);
+    \fill[tomate] (current page.south west) rectangle
+      ($(current page.south west)+({\paperwidth*\insertframenumber/\inserttotalframenumber},0.08)$);
+    \node[anchor=west, text=hoja, font=\scriptsize] at ($(current page.south west)+(0.6,0.27)$)
+      {\faSeedling\ \insertsectionhead};
+    \node[anchor=east, text=gris, font=\scriptsize] at ($(current page.south east)+(-0.6,0.27)$)
+      {\insertframenumber\,/\,\inserttotalframenumber};
+  \end{tikzpicture}%
+}
+
+% Tomate de árbol dibujado (para portada y separadores)
+\newcommand{\tomatearbol}[3]{% x, y, escala
+  \begin{scope}[shift={($(current page.south west)+(#1,#2)$)}, scale=#3]
+    \shade[ball color=tomate] (0,0) ellipse (0.55 and 0.75);
+    \fill[white, opacity=0.35] (-0.2,0.3) ellipse (0.10 and 0.20);
+    \draw[tierra, line width=1.2pt] (0,0.72) -- (0.05,1.05);
+    \fill[hoja] (0.05,0.98) .. controls (0.5,1.25) and (0.75,1.0) .. (0.85,0.85)
+                .. controls (0.5,0.80) and (0.25,0.85) .. (0.05,0.98);
+  \end{scope}}
+
+% Separador de sección
+\AtBeginSection[]{%
+  \begin{frame}[plain]
+    \begin{tikzpicture}[remember picture, overlay]
+      \fill[crema] (current page.south west) rectangle (current page.north east);
+      \fill[hoja] (current page.south west) rectangle ($(current page.south west)+(0.45,\paperheight)$);
+      \fill[naranja] ($(current page.south west)+(0.45,0)$) rectangle ($(current page.south west)+(0.6,\paperheight)$);
+      \node[anchor=west, text=tomate, font=\Huge\bfseries] at ($(current page.west)+(1.3,0.3)$) {\insertsectionhead};
+      \node[anchor=west, text=gris, font=\large] at ($(current page.west)+(1.3,-0.6)$)
+        {Parte \insertsectionnumber};
+      \tomatearbol{12.9}{4.6}{1.3}
+      \tomatearbol{14.4}{3.7}{0.9}
+    \end{tikzpicture}
+  \end{frame}}
+
+% Insertar figura si existe; si no, recuadro con el nombre del archivo
+\newcommand{\figura}[2]{% archivo, alto
+  \IfFileExists{figuras/#1}{\includegraphics[height=#2,keepaspectratio]{figuras/#1}}{%
+    \begin{tikzpicture}
+      \draw[gris, dashed, rounded corners, fill=white] (0,0) rectangle (0.9*#2*1.3,#2);
+      \node[text=gris, font=\footnotesize, align=center] at (0.45*#2*1.3,0.5*#2)
+        {\faImage\\[2pt] \texttt{figuras/\detokenize{#1}}};
+    \end{tikzpicture}}}
+
+% Código R
+\lstset{language=R, basicstyle=\ttfamily\scriptsize, keywordstyle=\color{hoja}\bfseries,
+  commentstyle=\color{gris}\itshape, stringstyle=\color{tomate}, backgroundcolor=\color{white},
+  frame=single, rulecolor=\color{hoja!40}, breaklines=true, showstringspaces=false,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1}
+
+% Destacar cifras
+\newcommand{\cifra}[1]{{\color{tomate}\bfseries #1}}
+\newcommand{\sig}{\textcolor{hoja}{\faCheck}}
+\newcommand{\nosig}{\textcolor{gris}{\faTimes}}
+
+% --- Datos de portada -------------------------------------------------
+\title{¿Más lejos de la cosecha, más caro?}
+\subtitle{Distribución espacial del precio mayorista del tomate de árbol en Colombia, 2024}
+\author{[Tu nombre]}
+\institute{Análisis Espacial · Parcial 3 · Universidad Externado de Colombia}
+\date{Semestre 2026-II}
+
+\begin{document}
+
+% =====================================================================
+% PORTADA
+% =====================================================================
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[crema] (current page.south west) rectangle (current page.north east);
+    \fill[hoja] (current page.north west) rectangle ($(current page.north east)+(0,-0.25)$);
+    \fill[naranja] ($(current page.north west)+(0,-0.25)$) rectangle ($(current page.north east)+(0,-0.35)$);
+    \tomatearbol{12.6}{5.2}{1.5}
+    \tomatearbol{14.4}{4.3}{1.1}
+    \tomatearbol{13.4}{2.9}{0.8}
+    \node[anchor=north west, text width=10.3cm, text=tomate, font=\huge\bfseries]
+      at ($(current page.north west)+(0.9,-1.1)$) {\inserttitle};
+    \node[anchor=north west, text width=10.3cm, text=tinta, font=\large]
+      at ($(current page.north west)+(0.9,-3.3)$) {\insertsubtitle};
+    \draw[naranja, line width=2pt] ($(current page.north west)+(0.9,-4.75)$) -- ++(3,0);
+    \node[anchor=north west, text width=10cm, font=\normalsize, text=tinta]
+      at ($(current page.north west)+(0.9,-5.0)$) {\textbf{\insertauthor}\\[2pt]
+      {\small\color{gris}\insertinstitute\\ \insertdate}};
+  \end{tikzpicture}
+\end{frame}
+
+% =====================================================================
+\section{Pregunta y fundamento}
+% =====================================================================
+\begin{frame}{Pregunta, hipótesis y objetivos}
+  \begin{alertblock}{\faQuestionCircle\ Pregunta}
+    ¿El precio mayorista del tomate de árbol en 2024 presenta dependencia espacial entre
+    municipios de Colombia, y se asocia con la cercanía a las zonas productoras?
+  \end{alertblock}
+  \vspace{0.15cm}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \textbf{\color{hoja}Hipótesis}
+    \begin{itemize}\small
+      \item \textbf{H1:} municipios vecinos tienen precios parecidos (autocorrelación positiva).
+      \item \textbf{H2:} más \textbf{distancia} a la gran producción $\Rightarrow$ \textbf{mayor} precio.
+      \item \textbf{H3:} más \textbf{producción local} $\Rightarrow$ \textbf{menor} precio.
+    \end{itemize}
+    \column{0.5\textwidth}
+    \textbf{\color{hoja}Objetivos}
+    \begin{enumerate}\small
+      \item Medir la autocorrelación global y local del precio.
+      \item Estimar MCO y 5 modelos espaciales con 3 matrices $W$.
+      \item Evaluar qué conclusiones son estables o sensibles.
+    \end{enumerate}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Fundamento teórico: el precio viaja con la cosecha}
+  \begin{columns}[c]
+    \column{0.58\textwidth}
+    \begin{itemize}\small
+      \item \textbf{Análisis espacial de precios} (Fackler y Goodwin, 2001): entre mercados
+            conectados, los precios difieren a lo sumo en el \textbf{costo de transporte}.
+      \item \textbf{Evidencia con SIPSA} (Banco de la República, 2020): los costos de
+            transacción equivalen a cerca del \cifra{42\%} del precio en origen; \cifra{+10\%}
+            en tiempo de viaje $\approx$ \cifra{+3\%} en ese costo.
+      \item \textbf{Concentración productiva} (EVA, 2024): Cundinamarca y Antioquia producen
+            el \cifra{70\%} del tomate de árbol del país.
+    \end{itemize}
+    \column{0.42\textwidth}
+    \begin{tikzpicture}[node distance=0.55cm, every node/.style={font=\small, align=center}]
+      \node[draw=hoja, fill=hoja!10, rounded corners, minimum width=4.2cm, minimum height=0.8cm] (p)
+        {\faSeedling\ Zona productora};
+      \node[draw=naranja, fill=naranja!10, rounded corners, minimum width=4.2cm, minimum height=0.8cm, below=of p] (t)
+        {\faTruck\ Transporte e intermediación};
+      \node[draw=tomate, fill=tomate!10, rounded corners, minimum width=4.2cm, minimum height=0.8cm, below=of t] (m)
+        {\faStore\ Precio en el mercado};
+      \draw[-latex, thick, tierra] (p) -- (t);
+      \draw[-latex, thick, tierra] (t) -- (m);
+    \end{tikzpicture}
+  \end{columns}
+  \vspace{0.2cm}
+  \begin{exampleblock}{Relaciones esperadas}\small
+    $X_1$ distancia a la producción: \textbf{positiva} \quad|\quad
+    $X_2$ producción local: \textbf{negativa}
+  \end{exampleblock}
+\end{frame}
+
+% =====================================================================
+\section{Datos y matrices}
+% =====================================================================
+\begin{frame}{Base analítica: una fila = un municipio}
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+    \textbf{\color{hoja}\faDatabase\ Fuentes}
+    \begin{itemize}\small
+      \item \textbf{SIPSA-P mensual 2024} (DANE): precios mayoristas, 54.042 registros,
+            349 productos, 80 mercados.
+      \item \textbf{EVA 2024} (MinAgricultura): producción de tomate de árbol en 269 municipios.
+      \item \textbf{MGN 2025} y \textbf{DIVIPOLA} (DANE): polígonos y códigos.
+    \end{itemize}
+    \textbf{\color{hoja}\faMapMarker*\ Unidad de análisis}
+    \begin{itemize}\small
+      \item \cifra{41 municipios} con precio los 12 meses.
+      \item Polígonos, MAGNA-SIRGAS Origen-Nacional (EPSG:9377), metros.
+    \end{itemize}
+    \column{0.48\textwidth}
+    \begin{block}{\faCheckCircle\ Control de calidad}\small
+      \begin{itemize}
+        \item 0 faltantes y 0 duplicados producto–mercado–mes.
+        \item Los archivos \texttt{.dta} y \texttt{.sav} traían el precio \textbf{mal
+              convertido} (1.387 $\to$ 1,387): se usó solo el CSV.
+        \item 80 mercados $\to$ 60 municipios; 3 nombres homologados con DIVIPOLA
+              (Cali, Cúcuta, Cartagena).
+        \item EVA: miles con coma (\texttt{10,935}); corregido para no perder 29 municipios.
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Variables del modelo}
+  \centering\small
+  \begin{tabular}{>{\bfseries}l >{\raggedright\arraybackslash}p{5.6cm} l c}
+    \toprule
+    & Definición & Unidad & Esperado \\
+    \midrule
+    \color{tomate}$y$ & Mediana anual del precio mayorista del tomate de árbol & \$/kg & --- \\
+    \color{hoja}$X_1$ & $\log(1+\text{distancia al gran productor más cercano})$ & km & $+$ \\
+    \color{hoja}$X_2$ & $\log(1+\text{producción local de tomate de árbol})$ & t & $-$ \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.35cm}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{itemize}\small
+      \item \textbf{Mediana}: un mes atípico no distorsiona el precio típico del año.
+      \item \textbf{Gran productor}: 10\% de municipios con más producción
+            ($\geq$ 1.409 t), que aportan el \cifra{79\%} del total.
+    \end{itemize}
+    \column{0.5\textwidth}
+    \begin{itemize}\small
+      \item \textbf{Logaritmos}: el precio sube rápido en los primeros km y luego se aplana
+            ($r$: 0,43 $\to$ \cifra{0,58}); 21 municipios no producen.
+      \item \textbf{Multicolinealidad}: $r(X_1,X_2)=-0{,}65$, \textbf{VIF = 1,73}.
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Mapas iniciales: dos clasificaciones de $y$}
+  \begin{columns}[c]
+    \column{0.62\textwidth}
+    \centering\figura{mapa_y_clasificaciones.png}{5.6cm}
+    \column{0.38\textwidth}
+    \begin{itemize}\small
+      \item Precio: de \cifra{\$1.615} (La Unión) a \cifra{\$4.027} (Florencia).
+      \item \textbf{Patrón común}: bajo en Antioquia, alto en la periferia oriental y sur.
+      \item \textbf{Cuantiles}: Pamplona, Ipiales, San Gil y Yopal parecen de los más caros.
+      \item \textbf{Intervalos iguales}: solo 4 en el extremo (Florencia, Arauca, Cúcuta,
+            Villavicencio).
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Tres matrices de vecindad}
+  \begin{columns}[c]
+    \column{0.55\textwidth}\small
+    \textbf{Queen no sirve}: los 41 municipios están dispersos y quedarían sin vecinos.
+    \vspace{0.15cm}
+
+    \begin{tabular}{l >{\raggedright\arraybackslash}p{4.6cm}}
+      \toprule
+      \color{tomate}\textbf{W1} & 4 vecinos más cercanos (\textbf{principal}).
+                                  Todos con 4; red conectada. \\
+      \color{hoja}\textbf{W2} & Umbral \cifra{247,8 km}: mínimo para que nadie quede aislado.
+                                 De 1 (Arauca) a 21 vecinos; el Caribe queda separado. \\
+      \color{naranja}\textbf{W3} & Vecinos de W2 con peso $1/d$: los cercanos pesan más. \\
+      \bottomrule
+    \end{tabular}
+
+    \vspace{0.2cm}
+    {\footnotesize Ej. Ibagué: Armenia (53 km) pesa 4,8\% en W2 y \cifra{11,8\%} en W3.
+    Todas estandarizadas por filas; mismo orden que los datos.}
+    \column{0.45\textwidth}
+    \centering\figura{W1_vecinos.png}{5.8cm}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Autocorrelación global}
+% =====================================================================
+\begin{frame}{Doce resultados globales}
+  \framesubtitle{Prueba $z$ bajo aleatorización, dos colas, $\alpha=0{,}05$}
+  \centering\scriptsize
+  \begin{tabular}{l l l r r r r c}
+    \toprule
+    Variable & Índice & $W$ & Estadístico & Esperado & $z$ & $p$ & Sig. \\
+    \midrule
+    \multirow{6}{*}{\color{tomate}\textbf{$y$: precio}}
+      & I de Moran & W1 & 0,491 & $-0{,}025$ & 5,42 & $6{,}1\times10^{-8}$ & \sig \\
+      & I de Moran & W2 & 0,229 & $-0{,}025$ & 3,50 & $4{,}7\times10^{-4}$ & \sig \\
+      & C de Geary & W1 & 0,438 & 1 & 5,35 & $4{,}5\times10^{-8}$ & \sig \\
+      & C de Geary & W2 & 0,692 & 1 & 3,94 & $4{,}0\times10^{-5}$ & \sig \\
+      & G Getis-Ord & W1 & 0,0253 & 0,025 & 0,72 & 0,474 & \nosig \\
+      & G Getis-Ord & W2 & 0,0250 & 0,025 & $-0{,}05$ & 0,964 & \nosig \\
+    \midrule
+    \multirow{6}{*}{\color{hoja}\textbf{$X_1$: distancia}}
+      & I de Moran & W1 & 0,577 & $-0{,}025$ & 6,38 & $1{,}7\times10^{-10}$ & \sig \\
+      & I de Moran & W2 & 0,474 & $-0{,}025$ & 6,93 & $4{,}1\times10^{-12}$ & \sig \\
+      & C de Geary & W1 & 0,354 & 1 & 5,85 & $5{,}0\times10^{-9}$ & \sig \\
+      & C de Geary & W2 & 0,516 & 1 & 5,96 & $2{,}5\times10^{-9}$ & \sig \\
+      & G Getis-Ord & W1 & 0,0275 & 0,025 & 2,44 & 0,015 & \sig \\
+      & G Getis-Ord & W2 & 0,0266 & 0,025 & 2,28 & 0,023 & \sig \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Lectura global: los vecinos se parecen}
+  \begin{columns}[c]
+    \column{0.5\textwidth}
+    \centering\figura{dispersion_moran_W1.png}{5.4cm}
+    \column{0.5\textwidth}
+    \begin{itemize}\small
+      \item \textbf{Moran y Geary} coinciden: autocorrelación \textbf{positiva} con W1 y W2.
+      \item \textbf{Más fuerte con W1}: I = 0,491 $\to$ 0,229 con W2. La similitud es
+            \textbf{local}; la vecindad amplia la diluye.
+      \item \textbf{G de $y$ no significativa}: coexisten grupos altos y bajos que se
+            compensan.
+      \item \textbf{$X_1$ sí concentra valores altos}: la periferia lejana a la producción.
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Patrones locales}
+% =====================================================================
+\begin{frame}{Moran local (W1): ¿dónde están los grupos?}
+  \begin{columns}[c]
+    \column{0.48\textwidth}
+    \centering\figura{mapa_moran_local.png}{5.8cm}
+    \column{0.52\textwidth}\small
+    \begin{itemize}
+      \item \cifra{8 Bajo-Bajo}: Medellín, La Ceja, La Unión, Peñol, Rionegro,
+            San Vicente Ferrer, El Santuario, Sonsón.
+      \item \cifra{1 Alto-Alto}: Arauca (\$3.889). \quad \cifra{1 Bajo-Alto}: Bucaramanga.
+      \item 31 no significativos ($p\geq0{,}05$).
+    \end{itemize}
+    \begin{exampleblock}{Verificación: El Santuario}\footnotesize
+      Precio \$1.753 ($z=-1{,}71$); vecinos (La Unión, Peñol, Rionegro, San Vicente)
+      $\approx$ \$1.900 (rezago $-1{,}47$). $I_i = 2{,}58$, $p = 0{,}001$ $\Rightarrow$
+      \textbf{Bajo-Bajo significativo}.
+    \end{exampleblock}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Getis-Ord y Geary locales}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \centering\figura{mapa_getis_local.png}{3.5cm}\\[2pt]
+    {\small \cifra{8 puntos fríos} (Antioquia) y \cifra{2 calientes} (oriente).}
+    \column{0.5\textwidth}
+    \centering\figura{mapa_geary_local.png}{3.5cm}\\[2pt]
+    {\small Mayor contraste: \cifra{Túquerres} (4,35) y \cifra{Florencia} (4,19).}
+  \end{columns}
+  \vspace{0.2cm}
+  \begin{alertblock}{Global vs. local}\small
+    El patrón global nace de un grupo de precios bajos en la \textbf{zona productora} antioqueña.
+    41 pruebas a la vez: $\approx 2$ falsos positivos esperados al 5\%; se hallaron 10.
+  \end{alertblock}
+\end{frame}
+
+% =====================================================================
+\section{Modelos y diagnóstico}
+% =====================================================================
+\begin{frame}{Seis especificaciones, 16 ajustes}
+  \centering\small
+  \begin{tabular}{>{\bfseries\color{hoja}}l l l}
+    \toprule
+    Modelo & Ecuación & Componente espacial \\
+    \midrule
+    MCO   & $y = X\beta + \varepsilon$ & Ninguno (se estima una vez) \\
+    SLM   & $y = \rho Wy + X\beta + \varepsilon$ & Precio de los vecinos \\
+    SEM   & $y = X\beta + u,\ u = \lambda Wu + \varepsilon$ & Error espacial \\
+    SLX   & $y = X\beta + WX\theta + \varepsilon$ & $X$ de los vecinos \\
+    SDM   & $y = \rho Wy + X\beta + WX\theta + \varepsilon$ & Precio y $X$ de los vecinos \\
+    SARAR & $y = \rho Wy + X\beta + u,\ u = \lambda Wu + \varepsilon$ & Precio y error \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.3cm}
+  \begin{block}{MCO de referencia}\small
+    $\hat\beta_{X_1} =$ \cifra{150,2} ($p=0{,}017$) \quad $\hat\beta_{X_2} = -46{,}0$ ($p=0{,}18$)
+    \quad $R^2 = 0{,}365$ \quad Moran de residuos con W1: \cifra{0,158} ($p=0{,}025$)
+    $\Rightarrow$ se justifican modelos espaciales.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Diagnóstico: 18 filas modelo–matriz}
+  \centering\scriptsize
+  \begin{tabular}{l rrr rrr rrr}
+    \toprule
+    & \multicolumn{3}{c}{\color{tomate}\textbf{W1}} & \multicolumn{3}{c}{\color{hoja}\textbf{W2}}
+    & \multicolumn{3}{c}{\color{naranja}\textbf{W3}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+    Modelo & pseudo-$R^2$ & $p$ Moran & AIC & pseudo-$R^2$ & $p$ Moran & AIC & pseudo-$R^2$ & $p$ Moran & AIC \\
+    \midrule
+    MCO   & 0,365 & \textbf{0,025} & 631 & 0,365 & \textbf{0,042} & \textbf{631} & 0,365 & \textbf{0,015} & 631 \\
+    SLM   & 0,490 & 0,617 & \cifra{626} & 0,400 & 0,531 & 632 & 0,457 & 0,915 & \cifra{629} \\
+    SEM   & 0,443 & 0,870 & 630 & 0,399 & 0,626 & 632 & 0,429 & 0,698 & 630 \\
+    SLX   & 0,487 & 0,053 & 627 & 0,397 & \textbf{0,010} & 633 & 0,402 & \textbf{0,003} & 633 \\
+    SDM   & 0,514 & 0,862 & 627 & 0,419 & 0,520 & 634 & 0,459 & 0,649 & 632 \\
+    SARAR & 0,571 & 0,991 & \cifra{626} & 0,399 & 0,698 & 634 & 0,468 & 0,779 & 631 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.25cm}
+  \begin{itemize}\small
+    \item Varianza residual: de 240.465 (MCO) a 162.601 (SARAR-W1). En negrita: Moran residual significativo.
+    \item SLM, SEM, SDM y SARAR \textbf{eliminan} la autocorrelación residual; SLX no.
+    \item Menor AIC: \textbf{SLM/SARAR con W1}, \textbf{SLM con W3}; con \textbf{W2 gana el MCO}.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Robustez}
+% =====================================================================
+\begin{frame}{Coeficientes de las dos $X$ centrales}
+  \centering\scriptsize
+  \begin{tabular}{l r r r r r r}
+    \toprule
+    Ajuste & $X_1$ & $X_2$ & $\rho$ & $\lambda$ & $WX_1$ & $WX_2$ \\
+    \midrule
+    MCO      & \textbf{150,2} (0,017) & $-46{,}0$ (0,18) & & & & \\
+    SLM-W1   & 84,0 (0,13) & $-36{,}4$ (0,20) & \textbf{0,47} (0,001) & & & \\
+    SEM-W1   & 103,5 (0,12) & $-27{,}9$ (0,35) & & \textbf{0,46} (0,003) & & \\
+    SLX-W1   & 11,7 (0,88) & $-55{,}6$ (0,09) & & & 138,2 (0,28) & $-72{,}6$ (0,29) \\
+    SDM-W1   & 11,6 (0,87) & $-47{,}6$ (0,10) & 0,27 (0,15) & & 107,5 (0,36) & $-44{,}6$ (0,49) \\
+    SARAR-W1 & 60,1 (0,18) & $-37{,}8$ (0,14) & \textbf{0,66} ($<$0,001) & $-0{,}62$ (0,14) & & \\
+    \midrule
+    SLM-W2   & 107,7 (0,08) & $-52{,}3$ (0,10) & 0,34 (0,11) & & & \\
+    SEM-W2   & \textbf{128,8} (0,043) & $-52{,}6$ (0,08) & & 0,35 (0,14) & & \\
+    SLX-W2   & 114,3 (0,19) & $-43{,}4$ (0,22) & & & 163,3 (0,23) & 94,4 (0,23) \\
+    SDM-W2   & 101,4 (0,20) & $-46{,}7$ (0,14) & 0,29 (0,23) & & 112,9 (0,38) & 88,1 (0,22) \\
+    SARAR-W2 & 114,2 (0,15) & $-53{,}7$ (0,09) & 0,22 (0,67) & 0,18 (0,77) & & \\
+    \midrule
+    SLM-W3   & 83,3 (0,15) & $-43{,}6$ (0,14) & \textbf{0,46} (0,006) & & & \\
+    SEM-W3   & 115,0 (0,08) & $-41{,}0$ (0,17) & & \textbf{0,43} (0,022) & & \\
+    SLX-W3   & 47,0 (0,61) & $-52{,}7$ (0,12) & & & 149,2 (0,23) & $-12{,}5$ (0,85) \\
+    SDM-W3   & 37,4 (0,65) & $-47{,}5$ (0,11) & \textbf{0,40} (0,041) & & 84,1 (0,46) & $-2{,}0$ (0,97) \\
+    SARAR-W3 & 75,4 (0,25) & $-43{,}9$ (0,13) & 0,53 (0,07) & $-0{,}14$ (0,80) & & \\
+    \bottomrule
+  \end{tabular}\\[2pt]
+  {\tiny Coeficiente (valor $p$). En negrita: significativo al 5\%. $X$ en logaritmo.}
+\end{frame}
+
+\begin{frame}{Dos comparaciones de robustez}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{block}{\faSync\ Cambiar $W$, misma familia (SLM)}\small
+      \begin{itemize}
+        \item $X_1$: 84 $\to$ 108 $\to$ 83. \textbf{Signo y magnitud estables}, no significativa.
+        \item $\rho$: \cifra{0,47*} (W1) $\to$ 0,34 (W2) $\to$ \cifra{0,46*} (W3).
+        \item La dependencia aparece con vecindades \textbf{locales} y se pierde con la amplia.
+      \end{itemize}
+    \end{block}
+    \column{0.5\textwidth}
+    \begin{block}{\faLayerGroup\ Cambiar familia, misma $W$ (W1)}\small
+      \begin{itemize}
+        \item MCO $\to$ SLM/SEM: $X_1$ baja de 150 a 84--103; $\rho$ y $\lambda$ captan la
+              dependencia.
+        \item SLX/SDM: $X_1 \approx 12$ y $WX_1 \approx 108$--138: la distancia propia y la
+              de los vecinos casi coinciden (Moran de $X_1$ = 0,58).
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Residuos con los mismos cortes}
+  \begin{columns}[c]
+    \column{0.55\textwidth}
+    \centering\figura{mapa_residuos.png}{6.1cm}
+    \column{0.45\textwidth}\small
+    \begin{itemize}
+      \item SLM-W1 corrige errores agrupados del MCO (más municipios en blanco).
+      \item SLM-W2 casi igual al MCO.
+      \item Errores persistentes:
+        \begin{itemize}
+          \item \textbf{Subestimados}: Florencia (+959), Santa Marta (+826), Villavicencio (+735).
+          \item \textbf{Sobreestimados}: Túquerres ($-944$), Manizales ($-732$), Popayán ($-676$).
+        \end{itemize}
+      \item Son los mismos municipios de mayor contraste en Geary local.
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Interpretación y conclusión}
+% =====================================================================
+\begin{frame}{Modelo elegido: SLM con W1}
+  \begin{columns}[T]
+    \column{0.47\textwidth}
+    \begin{block}{\faTrophy\ Por qué}\small
+      \begin{itemize}
+        \item \textbf{Vecindad} local y pareja, coherente con costos de transporte.
+        \item \textbf{AIC} = 626 (MCO: 631).
+        \item \textbf{Residuos} sin autocorrelación ($p = 0{,}617$).
+        \item $\rho = 0{,}47$ significativo; el SARAR empata en AIC pero su $\lambda$ no es
+              significativo.
+      \end{itemize}
+    \end{block}
+    \column{0.53\textwidth}
+    \textbf{\color{hoja}Impactos de $X_1$} (al duplicarse la distancia, $\times\ln 2$)\\[3pt]
+    \centering\small
+    \begin{tabular}{l r r}
+      \toprule
+      Efecto & Coef. & \$/kg \\
+      \midrule
+      Directo   & 88,8  & $\approx$ +62 \\
+      Indirecto & 68,4  & $\approx$ +47 \\
+      Total     & 157,2 & $\approx$ \cifra{+109} \\
+      \bottomrule
+    \end{tabular}\\[3pt]
+    {\footnotesize $p$ entre 0,11 y 0,25: no significativos al 5\%. $X_2$: total $-68{,}2$ ($p=0{,}28$).}
+  \end{columns}
+  \vspace{0.15cm}
+  \begin{exampleblock}{Qué añade frente al MCO}\small
+    El efecto total de la distancia (157) es similar al MCO (150), pero el SLM muestra que
+    \textbf{parte se transmite entre vecinos} y corrige la dependencia en los errores.
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Dos conclusiones sobre el fenómeno}
+  \centering\small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{3.9cm} >{\raggedright\arraybackslash}p{5.3cm} >{\raggedright\arraybackslash}p{3.4cm}}
+    \toprule
+    Conclusión & Evidencia & Clasificación \\
+    \midrule
+    \textbf{1.} Más lejos de la producción, más caro el tomate de árbol
+      & $X_1$ positiva en los \textbf{16 ajustes} (11,6 a 150,2); significativa solo en MCO y SEM-W2
+      & \textcolor{naranja}{\textbf{Signo estable, significancia sensible}} \\[4pt]
+    \textbf{2.} El precio de un municipio depende del de sus vecinos
+      & Moran 0,49 (W1); $\rho$/$\lambda$ significativos con W1 y W3, no con W2
+      & \textcolor{naranja}{\textbf{Sensible a la matriz}} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.35cm}
+  \begin{alertblock}{\faReply\ Respuesta a la pregunta}\small
+    Sí hay dependencia espacial: un grupo de precios bajos en la zona productora antioqueña y
+    precios altos en la periferia. La distancia a la producción tiene el signo esperado, pero
+    una vez modelada la dependencia entre vecinos su efecto deja de ser significativo.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Limitaciones}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{block}{\faRoute\ Distancia en línea recta}\small
+      No refleja vías, relieve ni cierres. \textbf{Consecuencia}: Florencia y Villavicencio
+      quedan subestimados por \$735--959/kg.
+    \end{block}
+    \column{0.5\textwidth}
+    \begin{block}{\faUsers\ Tamaño de la muestra}\small
+      41 municipios con datos todo el año. \textbf{Consecuencia}: efectos imprecisos; los
+      impactos tienen el signo esperado pero no son significativos.
+    \end{block}
+  \end{columns}
+  \vspace{0.2cm}
+  \begin{block}{\faSeedling\ Solo grandes productores en $X_1$}\small
+    Se ignora el abastecimiento desde productores medianos cercanos (p. ej. Túquerres,
+    Manizales, Popayán son más baratos de lo predicho). Además, SIPSA cubre centrales
+    mayoristas, no precios al consumidor.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Referencias}
+  \scriptsize
+  \begin{itemize}
+    \item[] Anselin, L. (1995). Local indicators of spatial association—LISA.
+            \textit{Geographical Analysis, 27}(2), 93--115.
+    \item[] Banco de la República. (2020). \textit{Abastecimiento y costos de transacción en los
+            mercados de alimentos de las principales ciudades de Colombia} (Borradores de
+            Economía, n.º 1128). [Completar autores]
+    \item[] Bivand, R., \& Piras, G. (2015). Comparing implementations of estimation methods
+            for spatial econometrics. \textit{Journal of Statistical Software, 63}(18), 1--36.
+    \item[] DANE. (2025). \textit{Sistema de Información de Precios y Abastecimiento del Sector
+            Agropecuario (SIPSA-P), base mensual 2024} [Conjunto de datos].
+    \item[] DANE. (2025). \textit{Marco Geoestadístico Nacional (MGN) 2025, nivel municipio}
+            [Conjunto de datos].
+    \item[] Fackler, P. L., \& Goodwin, B. K. (2001). Spatial price analysis. En B. L. Gardner
+            \& G. C. Rausser (Eds.), \textit{Handbook of Agricultural Economics} (Vol. 1,
+            pp. 971--1024). Elsevier.
+    \item[] Geary, R. C. (1954). The contiguity ratio and statistical mapping.
+            \textit{The Incorporated Statistician, 5}(3), 115--145.
+    \item[] Getis, A., \& Ord, J. K. (1992). The analysis of spatial association by use of
+            distance statistics. \textit{Geographical Analysis, 24}(3), 189--206.
+    \item[] Ministerio de Agricultura y Desarrollo Rural. (2025). \textit{Evaluaciones
+            Agropecuarias Municipales (EVA) 2019--2025, base agrícola} [Conjunto de datos].
+            datos.gov.co.
+    \item[] Moran, P. A. P. (1950). Notes on continuous stochastic phenomena.
+            \textit{Biometrika, 37}(1/2), 17--23.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+% RESPALDO
+% =====================================================================
+\appendix
+\section*{Respaldo}
+
+\begin{frame}[fragile]{Respaldo: bloque de R que construye W2}
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+\begin{lstlisting}
+# Distancia de cada municipio a su vecino
+# más cercano (en metros)
+nb_k1 <- knn2nb(knearneigh(coo, k = 1))
+dist1 <- nbdists(nb_k1, coo)
+
+# Umbral: la mayor de esas distancias
+max_dist <- max(unlist(dist1))
+max_dist / 1000          # 247.8 km
+
+# Vecinos a menos del umbral
+nb2 <- dnearneigh(coo, d1 = 0, d2 = max_dist)
+W2  <- nb2listw(nb2, style = "W")
+\end{lstlisting}
+    \column{0.45\textwidth}\small
+    \textbf{Entrada}: centroides de los 41 municipios en metros (EPSG:9377).\\[4pt]
+    \textbf{Operación}: busca el vecino más cercano de cada uno y toma la
+    \textbf{máxima} de esas distancias: el umbral mínimo para que nadie quede aislado.\\[4pt]
+    \textbf{Salida}: lista de vecinos (1 a 21, mediana 12) y matriz estandarizada por filas.
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Respaldo: producción de tomate de árbol (EVA 2024)}
+  \begin{columns}[T]
+    \column{0.5\textwidth}\small
+    \begin{tabular}{l r}
+      \toprule
+      Departamento & \% producción \\
+      \midrule
+      Cundinamarca & 36,8 \\
+      Antioquia & 33,1 \\
+      Tolima & 8,5 \\
+      Boyacá & 8,2 \\
+      Huila & 2,7 \\
+      \bottomrule
+    \end{tabular}
+    \column{0.5\textwidth}\small
+    \begin{itemize}
+      \item 269 municipios productores, 203.720 t.
+      \item Mayores: San Bernardo, Santa Rosa de Osos, Pandi, Cabrera, Donmatías.
+      \item 20 de los 41 municipios del estudio producen; los 5 grandes
+            (Sonsón, San Vicente Ferrer, Ibagué, Peñol, La Unión) coinciden con el
+            grupo Bajo-Bajo.
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\end{document}
