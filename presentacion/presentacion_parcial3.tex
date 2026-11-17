@@ -75,7 +75,7 @@
   \begin{tikzpicture}[remember picture, overlay]
     \fill[hoja!15] (current page.south west) rectangle ($(current page.south east)+(0,0.5)$);
     \fill[tomate] (current page.south west) rectangle
-      ($(current page.south west)+({\paperwidth*\insertframenumber/\inserttotalframenumber},0.08)$);
+      ($(current page.south west)+({\paperwidth*(\insertframenumber/\inserttotalframenumber)},0.08)$);
     \node[anchor=west, text=hoja, font=\scriptsize] at ($(current page.south west)+(0.6,0.27)$)
       {\faSeedling\ \insertsectionhead};
     \node[anchor=east, text=gris, font=\scriptsize] at ($(current page.south east)+(-0.6,0.27)$)
@@ -108,14 +108,26 @@
     \end{tikzpicture}
   \end{frame}}
 
-% Insertar figura si existe; si no, recuadro con el nombre del archivo
-\newcommand{\figura}[2]{% archivo, alto
+% Insertar figura si existe; si no, recuadro con el nombre del archivo.
+% #3 = etiqueta: al hacer clic en la figura se salta a su versión ampliada.
+\newlength{\altofig}
+\newcommand{\figurabase}[2]{%
   \IfFileExists{figuras/#1}{\includegraphics[height=#2,keepaspectratio]{figuras/#1}}{%
-    \begin{tikzpicture}
-      \draw[gris, dashed, rounded corners, fill=white] (0,0) rectangle (0.9*#2*1.3,#2);
-      \node[text=gris, font=\footnotesize, align=center] at (0.45*#2*1.3,0.5*#2)
-        {\faImage\\[2pt] \texttt{figuras/\detokenize{#1}}};
-    \end{tikzpicture}}}
+    \setlength{\altofig}{#2}%
+    \fcolorbox{gris}{white}{\parbox[c][\altofig][c]{1.17\altofig}{\centering\color{gris}\footnotesize
+      \faImage\\[2pt]\texttt{figuras/\detokenize{#1}}}}}}
+\newcommand{\figura}[3]{%
+  \hyperlink{zoom-#3}{\figurabase{#1}{#2}}%
+  \llap{\raisebox{3pt}{\colorbox{white}{\scriptsize\color{hoja}\faSearchPlus}}\hspace{3pt}}}
+
+% Diapositiva de ampliación: figura a pantalla completa y botón para volver
+\newcommand{\ampliacion}[3]{% archivo, etiqueta, título
+  \begin{frame}[plain, label=zoom-#2]
+    \vspace{-0.15cm}
+    {\small\bfseries\color{tomate} #3}\hfill\hyperlink{origen-#2}{\beamerbutton{\faUndo\ Volver}}\par
+    \vspace{0.1cm}
+    \centering\figurabase{#1}{0.82\paperheight}
+  \end{frame}}
 
 % Código R
 \lstset{language=R, basicstyle=\ttfamily\scriptsize, keywordstyle=\color{hoja}\bfseries,
@@ -318,10 +330,11 @@
 \end{frame}
 
 \begin{frame}{Mapas iniciales: dos clasificaciones de $y$}
+  \hypertarget{origen-clasificaciones}{}
   \enR{Script 2 · §4}
   \begin{columns}[c]
     \column{0.62\textwidth}
-    \centering\figura{mapa_y_clasificaciones.png}{5.6cm}
+    \centering\figura{mapa_y_clasificaciones.png}{5.6cm}{clasificaciones}
     \column{0.38\textwidth}
     \begin{itemize}\small
       \item Precio: de \cifra{\$1.615} (La Unión) a \cifra{\$4.027} (Florencia).
@@ -334,6 +347,7 @@
 \end{frame}
 
 \begin{frame}{Tres matrices de vecindad}
+  \hypertarget{origen-w1}{}
   \enR{Script 2 · §5}
   \begin{columns}[c]
     \column{0.55\textwidth}\small
@@ -351,10 +365,10 @@
     \end{tabular}
 
     \vspace{0.2cm}
-    {\footnotesize Ej. Ibagué: Armenia (53 km) pesa 4,8\% en W2 y \cifra{11,8\%} en W3.
+    {\scriptsize Ej. Ibagué: Armenia (53 km) pesa 4,8\% en W2 y \cifra{11,8\%} en W3.
     Todas estandarizadas por filas; mismo orden que los datos.}
     \column{0.45\textwidth}
-    \centering\figura{W1_vecinos.png}{5.8cm}
+    \centering\figura{W1_vecinos.png}{5.8cm}{w1}
   \end{columns}
 \end{frame}
 
@@ -389,10 +403,11 @@
 \end{frame}
 
 \begin{frame}{Lectura global: los vecinos se parecen}
+  \hypertarget{origen-dispersion}{}
   \enR{Script 2 · §7.1}
   \begin{columns}[c]
     \column{0.5\textwidth}
-    \centering\figura{dispersion_moran_W1.png}{5.4cm}
+    \centering\figura{dispersion_moran_W1.png}{5.4cm}{dispersion}
     \column{0.5\textwidth}
     \begin{itemize}\small
       \item \textbf{Moran y Geary} coinciden: autocorrelación \textbf{positiva} con W1 y W2.
@@ -409,10 +424,11 @@
 \section{Patrones locales}
 % =====================================================================
 \begin{frame}{Moran local (W1): ¿dónde están los grupos?}
+  \hypertarget{origen-moranlocal}{}
   \enR{Script 2 · §8.1--8.2}
   \begin{columns}[c]
     \column{0.48\textwidth}
-    \centering\figura{mapa_moran_local.png}{5.8cm}
+    \centering\figura{mapa_moran_local.png}{5.8cm}{moranlocal}
     \column{0.52\textwidth}\small
     \begin{itemize}
       \item \cifra{8 Bajo-Bajo}: Medellín, La Ceja, La Unión, Peñol, Rionegro,
@@ -429,13 +445,14 @@
 \end{frame}
 
 \begin{frame}{Getis-Ord y Geary locales}
+  \hypertarget{origen-getis}{}\hypertarget{origen-geary}{}
   \enR{Script 2 · §8.3--8.4}
   \begin{columns}[T]
     \column{0.5\textwidth}
-    \centering\figura{mapa_getis_local.png}{3.5cm}\\[2pt]
+    \centering\figura{mapa_getis_local.png}{3.5cm}{getis}\\[2pt]
     {\small \cifra{8 puntos fríos} (Antioquia) y \cifra{2 calientes} (oriente).}
     \column{0.5\textwidth}
-    \centering\figura{mapa_geary_local.png}{3.5cm}\\[2pt]
+    \centering\figura{mapa_geary_local.png}{3.5cm}{geary}\\[2pt]
     {\small Mayor contraste: \cifra{Túquerres} (4,35) y \cifra{Florencia} (4,19).}
   \end{columns}
   \vspace{0.2cm}
@@ -556,10 +573,11 @@
 \end{frame}
 
 \begin{frame}{Residuos con los mismos cortes}
+  \hypertarget{origen-residuos}{}
   \enR{Script 2 · §10.7}
   \begin{columns}[c]
     \column{0.55\textwidth}
-    \centering\figura{mapa_residuos.png}{6.1cm}
+    \centering\figura{mapa_residuos.png}{6.1cm}{residuos}
     \column{0.45\textwidth}\small
     \begin{itemize}
       \item SLM-W1 corrige errores agrupados del MCO (más municipios en blanco).
@@ -740,5 +758,16 @@ W2  <- nb2listw(nb2, style = "W")
     \end{itemize}
   \end{columns}
 \end{frame}
+
+% =====================================================================
+% AMPLIACIONES (se llega con clic sobre cada figura)
+% =====================================================================
+\ampliacion{mapa_y_clasificaciones.png}{clasificaciones}{Mapas iniciales: cuantiles e intervalos iguales}
+\ampliacion{W1_vecinos.png}{w1}{W1: 4 vecinos más cercanos}
+\ampliacion{dispersion_moran_W1.png}{dispersion}{Diagrama de dispersión de Moran (W1)}
+\ampliacion{mapa_moran_local.png}{moranlocal}{Moran local (W1)}
+\ampliacion{mapa_getis_local.png}{getis}{Getis-Ord local (W1)}
+\ampliacion{mapa_geary_local.png}{geary}{Geary local (W1)}
+\ampliacion{mapa_residuos.png}{residuos}{Residuos: MCO y SLM con W1, W2 y W3}
 
 \end{document}
