@@ -372,6 +372,28 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{W1 frente a W2: cómo se conectan los municipios}
+  \enR{Script 2 · §5.3--5.4}
+  \hypertarget{origen-redw1}{}\hypertarget{origen-redw2}{}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \centering{\color{tomate}\bfseries W1: 4 vecinos más cercanos}\\[3pt]
+    \figura{W1_red.png}{3.7cm}{redw1}
+    \begin{itemize}\footnotesize
+      \item Todos con 4 vecinos; \textbf{una sola red} conectada.
+      \item La costa se une al interior por Antioquia.
+    \end{itemize}
+    \column{0.5\textwidth}
+    \centering{\color{hoja}\bfseries W2: vecinos a menos de 247,8 km}\\[3pt]
+    \figura{W2_red.png}{3.7cm}{redw2}
+    \begin{itemize}\footnotesize
+      \item \textbf{El Caribe queda separado} del interior.
+      \item Centro andino denso: hasta \cifra{21} vecinos;
+            Arauca con 1.
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
 % =====================================================================
 \section{Autocorrelación global}
 % =====================================================================
@@ -764,6 +786,8 @@ W2  <- nb2listw(nb2, style = "W")
 % =====================================================================
 \ampliacion{mapa_y_clasificaciones.png}{clasificaciones}{Mapas iniciales: cuantiles e intervalos iguales}
 \ampliacion{W1_vecinos.png}{w1}{W1: 4 vecinos más cercanos}
+\ampliacion{W1_red.png}{redw1}{W1: red de 4 vecinos más cercanos}
+\ampliacion{W2_red.png}{redw2}{W2: red de vecinos a menos de 247,8 km}
 \ampliacion{dispersion_moran_W1.png}{dispersion}{Diagrama de dispersión de Moran (W1)}
 \ampliacion{mapa_moran_local.png}{moranlocal}{Moran local (W1)}
 \ampliacion{mapa_getis_local.png}{getis}{Getis-Ord local (W1)}
